@@ -1,10 +1,11 @@
 import { Component } from 'react';
 import { Image } from 'components/Image/Image';
+import { StyledGallery } from './styled';
 
 export class ImageGallery extends Component {
   render() {
     return (
-      <ul>
+      <StyledGallery>
         {this.props.items.map(({ id, webformatURL, largeImageURL, tags }) => {
           return (
             <Image
@@ -15,7 +16,7 @@ export class ImageGallery extends Component {
             />
           );
         })}
-      </ul>
+      </StyledGallery>
     );
   }
 }

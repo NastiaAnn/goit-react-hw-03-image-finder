@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { SearchBar } from './Searchbar/SearchBar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import * as API from 'services/Api';
+import { Modal } from './Modal/Modal';
 
 export class App extends Component {
   state = {
@@ -26,12 +27,10 @@ export class App extends Component {
     return (
       <div
         style={{
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: 40,
-          color: '#010101',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gridGap: '16px',
+          paddingBottom: '24px',
         }}
       >
         <SearchBar
@@ -45,6 +44,7 @@ export class App extends Component {
             items={this.state.images}
           />
         ) : null}
+        <Modal />
       </div>
     );
   }
