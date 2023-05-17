@@ -8,8 +8,16 @@ export class App extends Component {
   state = {
     images: [],
     isLoading: false,
+    showModal: false,
+    selectedImage: null,
   };
 
+  toggleModal = image => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+      selectedImage: image,
+    }));
+  };
   getImages = async values => {
     try {
       this.setState({ isLoading: true });
@@ -24,6 +32,8 @@ export class App extends Component {
 
   render() {
     console.log(this.state.images);
+
+    const { isLoading, images, showModal, selectedImage } = this.state;
     return (
       <div
         style={{
@@ -33,18 +43,25 @@ export class App extends Component {
           paddingBottom: '24px',
         }}
       >
-        <SearchBar
-          onSubmit={this.getImages}
-          isSubmitting={this.state.isLoading}
-        />
-        {this.state.isLoading && <div>Loading</div>}
-        {this.state.images.length > 0 ? (
-          <ImageGallery
-            searchedImg={this.state.searchedImg}
-            items={this.state.images}
-          />
+        <SearchBar onSubmit={this.getImages} isSubmitting={isLoading} />
+        {isLoading && <div>Loading</div>}
+        {images.length > 0 ? (
+          <ImageGallery items={images} onClick={this.toggleModal} />
         ) : null}
-        <Modal />
+
+        {showModal && (
+          <Modal>
+            <img
+              style={{
+                display: 'block',
+                width: '100%',
+                height: 'auto',
+              }}
+              src={selectedImage.largeImageURL}
+              alt={selectedImage.tags}
+            />
+          </Modal>
+        )}
       </div>
     );
   }

@@ -3,6 +3,10 @@ import { Image } from 'components/Image/Image';
 import { StyledGallery } from './styled';
 
 export class ImageGallery extends Component {
+  handleImageClick = image => {
+    this.props.onClick(image);
+  };
+
   render() {
     return (
       <StyledGallery>
@@ -13,6 +17,9 @@ export class ImageGallery extends Component {
               smallImgUrl={webformatURL}
               bigImgUrl={largeImageURL}
               imgDescr={tags}
+              onClick={() =>
+                this.handleImageClick({ id, webformatURL, largeImageURL, tags })
+              }
             />
           );
         })}

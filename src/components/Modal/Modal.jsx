@@ -8,11 +8,10 @@ export class Modal extends Component {
   componentDidUpdate() {}
 
   render() {
+    // console.log({ largeImageURL });
     return (
       <Overlay>
-        <StyledModal>
-          <img src="" alt="" />
-        </StyledModal>
+        <StyledModal>{this.props.children}</StyledModal>
       </Overlay>
     );
   }

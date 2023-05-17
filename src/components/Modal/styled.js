@@ -15,6 +15,6 @@ export const Overlay = styled.div`
 
 export const StyledModal = styled.div`
   background-color: white;
-  min-width: calc(70vw - 48px);
-  min-height: calc(70vh - 24px);
+  max-width: calc(70vw - 48px);
+  max-height: calc(70vh - 24px);
 `;
