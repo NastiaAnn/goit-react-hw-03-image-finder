@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { SearchBar } from './Searchbar/SearchBar';
-import { ImageGallery } from './ImageGallery/ImageGallery';
+import { SearchBar } from './Searchbar';
+import { ImageGallery } from './ImageGallery';
 import * as API from 'services/Api';
-import { Modal } from './Modal/Modal';
+import { Modal } from './Modal';
+import { Circles } from 'react-loader-spinner';
 
 export class App extends Component {
   state = {
@@ -18,6 +19,7 @@ export class App extends Component {
       selectedImage: image,
     }));
   };
+
   getImages = async values => {
     try {
       this.setState({ isLoading: true });
@@ -31,8 +33,6 @@ export class App extends Component {
   };
 
   render() {
-    console.log(this.state.images);
-
     const { isLoading, images, showModal, selectedImage } = this.state;
     return (
       <div
@@ -44,13 +44,27 @@ export class App extends Component {
         }}
       >
         <SearchBar onSubmit={this.getImages} isSubmitting={isLoading} />
-        {isLoading && <div>Loading</div>}
+        {isLoading && (
+          <Circles
+            height="100"
+            width="100"
+            color="#004F98"
+            ariaLabel="circles-loading"
+            wrapperStyle={{
+              marginTop: '50px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+            wrapperClass=""
+            visible={true}
+          />
+        )}
         {images.length > 0 ? (
           <ImageGallery items={images} onClick={this.toggleModal} />
         ) : null}
 
-        {showModal && (
-          <Modal>
+        {showModal && selectedImage && (
+          <Modal onClose={this.toggleModal}>
             <img
               style={{
                 display: 'block',

@@ -1,5 +1,7 @@
 import { Formik } from 'formik';
 import { Input, SearchForm, FormButton, FormWrap } from './styled';
+import { GoSearch } from 'react-icons/go';
+import PropTypes from 'prop-types';
 
 export const SearchBar = ({ onSubmit, isSubmitting }) => {
   const handleSubmit = (values, actions) => {
@@ -15,7 +17,7 @@ export const SearchBar = ({ onSubmit, isSubmitting }) => {
       <Formik initialValues={{ searchedImg: '' }} onSubmit={handleSubmit}>
         <SearchForm>
           <FormButton type="submit" className="button" disabled={isSubmitting}>
-            <span className="button-label">Search</span>
+            <GoSearch size={'20px'} />
           </FormButton>
 
           <Input
@@ -27,4 +29,9 @@ export const SearchBar = ({ onSubmit, isSubmitting }) => {
       </Formik>
     </FormWrap>
   );
+};
+
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
 };
