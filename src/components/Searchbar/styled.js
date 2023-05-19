@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { Form, Field } from 'formik';
 
-export const Input = styled(Field)`
+export const FormInput = styled.input`
   display: inline-block;
   width: 100%;
   font: inherit;
@@ -17,7 +16,7 @@ export const Input = styled(Field)`
   }
 `;
 
-export const SearchForm = styled(Form)`
+export const SearchForm = styled.form`
   display: flex;
   align-items: center;
   width: 100%;

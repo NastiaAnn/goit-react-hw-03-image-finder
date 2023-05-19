@@ -1,37 +1,48 @@
-import { Formik } from 'formik';
-import { Input, SearchForm, FormButton, FormWrap } from './styled';
+import React, { Component } from 'react';
+import { FormInput, SearchForm, FormButton, FormWrap } from './styled';
 import { GoSearch } from 'react-icons/go';
 import PropTypes from 'prop-types';
 
-export const SearchBar = ({ onSubmit, isSubmitting }) => {
-  const handleSubmit = (values, actions) => {
-    if (values.searchedImg.trim() === '') {
-      return alert('Порожня строка');
-    }
-    onSubmit(values).then(() => actions.setSubmitting(false));
-    actions.resetForm();
+export class SearchBar extends Component {
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
+  state = {
+    imageName: '',
+  };
+  handleNameChange = event => {
+    this.setState({ imageName: event.currentTarget.value.toLowerCase() });
   };
 
-  return (
-    <FormWrap>
-      <Formik initialValues={{ searchedImg: '' }} onSubmit={handleSubmit}>
-        <SearchForm>
-          <FormButton type="submit" className="button" disabled={isSubmitting}>
-            <GoSearch size={'20px'} />
-          </FormButton>
+  handleSubmit = event => {
+    const { imageName } = this.state;
+    event.preventDefault();
 
-          <Input
-            type="text"
-            placeholder="Search images and photos"
-            name="searchedImg"
-          />
-        </SearchForm>
-      </Formik>
-    </FormWrap>
-  );
-};
+    if (imageName.trim() === '') {
+      alert('Порожня строка');
+    }
+    this.props.onSubmit(imageName);
+    this.setState({ imageName: '' });
+  };
 
-SearchBar.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  isSubmitting: PropTypes.bool.isRequired,
-};
+  render() {
+    const { imageName } = this.state;
+    return (
+      <FormWrap>
+        <header className="searchbar">
+          <SearchForm onSubmit={this.handleSubmit}>
+            <FormButton type="submit">
+              <GoSearch size={'15px'} />
+            </FormButton>
+
+            <FormInput
+              placeholder="Search images and photos"
+              value={imageName}
+              onChange={this.handleNameChange}
+            />
+          </SearchForm>
+        </header>
+      </FormWrap>
+    );
+  }
+}
