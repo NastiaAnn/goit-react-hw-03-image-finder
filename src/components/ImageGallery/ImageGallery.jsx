@@ -2,11 +2,11 @@ import { Component } from 'react';
 import { Image } from 'components/Image';
 import { StyledGallery } from './styled';
 import { Circles } from 'react-loader-spinner';
-import { LoadMoreBtn } from 'components/LoadMoreBtn/LoadMoreBtn';
-// import { fetchImages } from 'services/Api';
+import { LoadMoreBtn } from 'components/LoadMoreBtn';
 import { PixabayApi } from 'services/Api';
 import { Modal } from 'components/Modal';
 import PropTypes from 'prop-types';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const pixabayApi = new PixabayApi();
 
@@ -22,66 +22,76 @@ export class ImageGallery extends Component {
     isLoadedBtn: false,
   };
 
-  handleAPIRequest = imageName => {
-    return pixabayApi
-      .fetchImages(imageName)
-      .then(images => {
-        console.log(images.data);
-        if (images.data.totalHits === 0) {
-          alert(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-          return;
-        }
-        if (images.data.totalHits <= 12 || images.data.totalHits === 0) {
-          return this.setState({
-            images: images.data.hits,
-            isLoadedBtn: false,
-          });
-        }
-        this.setState({
-          images: images.data.hits,
-          isLoadedBtn: true,
-        });
-      })
-      .catch(error => {
-        console.log(error);
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
-  };
-
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { imageName } = this.props;
     if (prevProps.imageName !== imageName && imageName.trim() !== '') {
       this.setState({ isLoading: true, images: [], isLoadedBtn: false });
       this.handleAPIRequest(imageName);
     }
   }
+  handleAPIRequest = imageName => {
+    try {
+      return pixabayApi
+        .fetchImages(imageName)
+        .then(images => {
+          this.handleAPIRequestChecking(images);
+        })
+        .finally(() => {
+          this.setState({ isLoading: false });
+        });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+
+  handleAPIRequestChecking = images => {
+    if (images.data.totalHits === 0) {
+      return Notify.warning(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+    if (images.data.totalHits <= 12 || images.data.totalHits === 0) {
+      return this.setState({
+        images: images.data.hits,
+        isLoadedBtn: false,
+      });
+    }
+    this.setState({
+      images: images.data.hits,
+      isLoadedBtn: true,
+    });
+  };
+
+  handleLoadMoreBtnClick = () => {
+    try {
+      pixabayApi.page += 1;
+      const { imageName } = this.props;
+      pixabayApi.fetchImages(imageName).then(images => {
+        this.handleLoadMoreBtnClickChecking(images);
+      });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+
+  handleLoadMoreBtnClickChecking = images => {
+    if (images.data.totalHits - pixabayApi.count <= pixabayApi.count) {
+      return this.setState(prevState => ({
+        images: [...prevState.images, ...images.data.hits],
+        isLoading: false,
+        isLoadedBtn: false,
+      }));
+    }
+    this.setState(prevState => ({
+      images: [...prevState.images, ...images.data.hits],
+    }));
+  };
 
   toggleModal = image => {
     this.setState(({ showModal }) => ({
       showModal: !showModal,
       selectedImage: image,
     }));
-  };
-
-  handleLoadMoreBtnClick = () => {
-    pixabayApi.page += 1;
-    const { imageName } = this.props;
-    pixabayApi.fetchImages(imageName).then(images => {
-      if (images.data.totalHits - pixabayApi.count <= pixabayApi.count) {
-        return this.setState(prevState => ({
-          images: [...prevState.images, ...images.data.hits],
-          isLoading: false,
-          isLoadedBtn: false,
-        }));
-      }
-      this.setState(prevState => ({
-        images: [...prevState.images, ...images.data.hits],
-      }));
-    });
   };
 
   render() {
