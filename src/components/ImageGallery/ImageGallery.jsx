@@ -99,40 +99,42 @@ export class ImageGallery extends Component {
       this.state;
     return (
       <>
-        <StyledGallery>
-          {isLoading && (
-            <Circles
-              height="100"
-              width="100"
-              color="#004F98"
-              ariaLabel="circles-loading"
-              wrapperStyle={{
-                position: 'absolute',
-                display: 'flex',
-                top: 0,
-                left: 0,
-                right: 0,
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '50vh',
-              }}
-              wrapperClass=""
-              visible={true}
-            />
-          )}
-          {images &&
-            images.map(({ id, webformatURL, largeImageURL, tags }) => {
-              return (
-                <Image
-                  key={id}
-                  smallImgUrl={webformatURL}
-                  bigImgUrl={largeImageURL}
-                  imgDescr={tags}
-                  handleImgClick={this.toggleModal}
-                />
-              );
-            })}
-        </StyledGallery>
+        {images.length > 0 && (
+          <StyledGallery>
+            {isLoading && (
+              <Circles
+                height="100"
+                width="100"
+                color="#004F98"
+                ariaLabel="circles-loading"
+                wrapperStyle={{
+                  position: 'absolute',
+                  display: 'flex',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '50vh',
+                }}
+                wrapperClass=""
+                visible={true}
+              />
+            )}
+            {images &&
+              images.map(({ id, webformatURL, largeImageURL, tags }) => {
+                return (
+                  <Image
+                    key={id}
+                    smallImgUrl={webformatURL}
+                    bigImgUrl={largeImageURL}
+                    imgDescr={tags}
+                    handleImgClick={this.toggleModal}
+                  />
+                );
+              })}
+          </StyledGallery>
+        )}
 
         {isLoadedBtn && (
           <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick} />
