@@ -26,6 +26,7 @@ export class ImageGallery extends Component {
   componentDidUpdate(prevProps) {
     const { imageName } = this.props;
     if (prevProps.imageName !== imageName && imageName.trim() !== '') {
+      pixabayApi.page = 1;
       this.setState({ isLoading: true, images: [], isLoadedBtn: false });
       this.handleAPIRequest(imageName);
     }
@@ -35,6 +36,7 @@ export class ImageGallery extends Component {
       return pixabayApi
         .fetchImages(imageName)
         .then(images => {
+          console.log(images);
           this.handleAPIRequestChecking(images);
         })
         .finally(() => {
@@ -194,7 +196,7 @@ export class ImageGallery extends Component {
               />
             )}
           </LoadMoreBtn>
-        )} */}
+        )}  */}
 
         {showModal && selectedImage && (
           <Modal onClose={this.toggleModal}>
