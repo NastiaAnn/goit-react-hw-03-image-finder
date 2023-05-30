@@ -21,22 +21,28 @@ export class ImageGallery extends Component {
     selectedImage: null,
     isLoadedBtn: false,
     isLoadedMore: false,
+    page: 1,
   };
 
   componentDidUpdate(prevProps) {
     const { imageName } = this.props;
     if (prevProps.imageName !== imageName && imageName.trim() !== '') {
       pixabayApi.page = 1;
-      this.setState({ isLoading: true, images: [], isLoadedBtn: false });
+      this.setState({
+        isLoading: true,
+        images: [],
+        isLoadedBtn: false,
+        page: 1,
+      });
       this.handleAPIRequest(imageName);
     }
   }
   handleAPIRequest = imageName => {
     try {
+      const { page } = this.state;
       return pixabayApi
-        .fetchImages(imageName)
+        .fetchImages(imageName, page)
         .then(images => {
-          console.log(images);
           this.handleAPIRequestChecking(images);
         })
         .finally(() => {
@@ -54,32 +60,6 @@ export class ImageGallery extends Component {
       );
     }
     if (images.data.totalHits <= 12 || images.data.totalHits === 0) {
-      return this.setState({
-        images: images.data.hits,
-        isLoadedBtn: false,
-      });
-    }
-    this.setState({
-      images: images.data.hits,
-      isLoadedBtn: true,
-    });
-  };
-
-  handleLoadMoreBtnClick = () => {
-    try {
-      this.setState({ isLoadedMore: true });
-      pixabayApi.page += 1;
-      const { imageName } = this.props;
-      pixabayApi.fetchImages(imageName).then(images => {
-        this.handleLoadMoreBtnClickChecking(images);
-      });
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  };
-
-  handleLoadMoreBtnClickChecking = images => {
-    if (images.data.totalHits - pixabayApi.count <= pixabayApi.count) {
       return this.setState(prevState => ({
         images: [...prevState.images, ...images.data.hits],
         isLoading: false,
@@ -90,8 +70,34 @@ export class ImageGallery extends Component {
     this.setState(prevState => ({
       images: [...prevState.images, ...images.data.hits],
       isLoadedMore: false,
+      isLoadedBtn: true,
     }));
   };
+
+  handleLoadMoreBtnClick = () => {
+    try {
+      this.setState({ isLoadedMore: true, page: this.state.page + 1 });
+      const { imageName } = this.props;
+      this.handleAPIRequest(imageName);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+
+  // handleLoadMoreBtnClickChecking = images => {
+  //   if (images.data.totalHits - pixabayApi.count <= pixabayApi.count) {
+  //     return this.setState(prevState => ({
+  //       images: [...prevState.images, ...images.data.hits],
+  //       isLoading: false,
+  //       isLoadedBtn: false,
+  //       isLoadedMore: false,
+  //     }));
+  //   }
+  //   this.setState(prevState => ({
+  //     images: [...prevState.images, ...images.data.hits],
+  //     isLoadedMore: false,
+  //   }));
+  // };
 
   toggleModal = image => {
     this.setState(({ showModal }) => ({
@@ -172,31 +178,6 @@ export class ImageGallery extends Component {
         {isLoadedBtn && (
           <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick} />
         )}
-
-        {/* {isLoadedBtn && (
-          <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick}>
-            {isLoadedMore && (
-              <Circles
-                height="100"
-                width="100"
-                color="#004F98"
-                ariaLabel="circles-loading"
-                wrapperStyle={{
-                  position: 'absolute',
-                  display: 'flex',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '50vh',
-                }}
-                wrapperClass=""
-                visible={true}
-              />
-            )}
-          </LoadMoreBtn>
-        )}  */}
 
         {showModal && selectedImage && (
           <Modal onClose={this.toggleModal}>
