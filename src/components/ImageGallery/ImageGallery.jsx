@@ -20,6 +20,7 @@ export class ImageGallery extends Component {
     isLoading: false,
     selectedImage: null,
     isLoadedBtn: false,
+    isLoadedMore: false,
   };
 
   componentDidUpdate(prevProps) {
@@ -64,6 +65,7 @@ export class ImageGallery extends Component {
 
   handleLoadMoreBtnClick = () => {
     try {
+      this.setState({ isLoadedMore: true });
       pixabayApi.page += 1;
       const { imageName } = this.props;
       pixabayApi.fetchImages(imageName).then(images => {
@@ -80,10 +82,12 @@ export class ImageGallery extends Component {
         images: [...prevState.images, ...images.data.hits],
         isLoading: false,
         isLoadedBtn: false,
+        isLoadedMore: false,
       }));
     }
     this.setState(prevState => ({
       images: [...prevState.images, ...images.data.hits],
+      isLoadedMore: false,
     }));
   };
 
@@ -95,11 +99,17 @@ export class ImageGallery extends Component {
   };
 
   render() {
-    const { isLoading, images, showModal, selectedImage, isLoadedBtn } =
-      this.state;
+    const {
+      isLoading,
+      images,
+      showModal,
+      selectedImage,
+      isLoadedBtn,
+      isLoadedMore,
+    } = this.state;
     return (
       <>
-        {images.length > 0 && (
+        {images.length >= 0 && (
           <StyledGallery>
             {isLoading && (
               <Circles
@@ -136,9 +146,55 @@ export class ImageGallery extends Component {
           </StyledGallery>
         )}
 
+        {isLoadedMore && (
+          <Circles
+            height="100"
+            width="100"
+            color="#004F98"
+            ariaLabel="circles-loading"
+            wrapperStyle={{
+              position: 'absolute',
+              display: 'flex',
+              top: 0,
+              left: 0,
+              right: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '50vh',
+            }}
+            wrapperClass=""
+            visible={true}
+          />
+        )}
+
         {isLoadedBtn && (
           <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick} />
         )}
+
+        {/* {isLoadedBtn && (
+          <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick}>
+            {isLoadedMore && (
+              <Circles
+                height="100"
+                width="100"
+                color="#004F98"
+                ariaLabel="circles-loading"
+                wrapperStyle={{
+                  position: 'absolute',
+                  display: 'flex',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '50vh',
+                }}
+                wrapperClass=""
+                visible={true}
+              />
+            )}
+          </LoadMoreBtn>
+        )} */}
 
         {showModal && selectedImage && (
           <Modal onClose={this.toggleModal}>
