@@ -37,12 +37,14 @@ export class ImageGallery extends Component {
       this.handleAPIRequest(imageName);
     }
   }
-  handleAPIRequest = imageName => {
+  handleAPIRequest = (imageName, page) => {
     try {
       const { page } = this.state;
+      console.log(page);
       return pixabayApi
         .fetchImages(imageName, page)
         .then(images => {
+          console.log(images);
           this.handleAPIRequestChecking(images);
         })
         .finally(() => {
@@ -59,7 +61,11 @@ export class ImageGallery extends Component {
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
-    if (images.data.totalHits <= 12 || images.data.totalHits === 0) {
+    if (
+      images.data.totalHits <= 12 ||
+      images.data.totalHits === 0 ||
+      images.data.totalHits - pixabayApi.count <= pixabayApi.count
+    ) {
       return this.setState(prevState => ({
         images: [...prevState.images, ...images.data.hits],
         isLoading: false,
@@ -76,28 +82,15 @@ export class ImageGallery extends Component {
 
   handleLoadMoreBtnClick = () => {
     try {
-      this.setState({ isLoadedMore: true, page: this.state.page + 1 });
       const { imageName } = this.props;
-      this.handleAPIRequest(imageName);
+      const nextPage = this.state.page + 1;
+      this.setState({ isLoadedMore: true, page: nextPage }, () => {
+        this.handleAPIRequest(imageName, nextPage);
+      });
     } catch (err) {
       throw new Error(err.message);
     }
   };
-
-  // handleLoadMoreBtnClickChecking = images => {
-  //   if (images.data.totalHits - pixabayApi.count <= pixabayApi.count) {
-  //     return this.setState(prevState => ({
-  //       images: [...prevState.images, ...images.data.hits],
-  //       isLoading: false,
-  //       isLoadedBtn: false,
-  //       isLoadedMore: false,
-  //     }));
-  //   }
-  //   this.setState(prevState => ({
-  //     images: [...prevState.images, ...images.data.hits],
-  //     isLoadedMore: false,
-  //   }));
-  // };
 
   toggleModal = image => {
     this.setState(({ showModal }) => ({
@@ -117,7 +110,7 @@ export class ImageGallery extends Component {
     } = this.state;
     return (
       <>
-        {images.length >= 0 && (
+        {images.length > 0 && (
           <StyledGallery>
             {isLoading && (
               <Circles
