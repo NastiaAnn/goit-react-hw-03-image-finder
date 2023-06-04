@@ -37,21 +37,24 @@ export class ImageGallery extends Component {
         page: 1,
       });
 
-      pixabayApi.fetchImages(imageName, 1).then(images => {
-        this.handleAPIRequestChecking(images);
-      });
+      this.handleAPIRequest(imageName, 1);
     }
 
     if (prevState.page !== page && page !== 1) {
       this.setState({ isLoadedMore: true });
-      pixabayApi.fetchImages(imageName, page).then(images => {
-        this.handleAPIRequestChecking(images);
-      });
+      this.handleAPIRequest(imageName, page);
     }
   }
 
+  handleAPIRequest = (imageName, page) => {
+    return pixabayApi.fetchImages(imageName, page).then(images => {
+      this.handleAPIRequestChecking(images);
+    });
+  };
+
   handleAPIRequestChecking = images => {
     if (images.data.totalHits === 0) {
+      this.setState({ isLoading: false });
       return Notify.warning(
         'Sorry, there are no images matching your search query. Please try again.'
       );
@@ -61,16 +64,17 @@ export class ImageGallery extends Component {
       images.data.totalHits === 0 ||
       images.data.totalHits - pixabayApi.count <= pixabayApi.count
     ) {
-      return this.setState(prevState => ({
+      return this.setState({
         images: images.data.hits,
         isLoading: false,
         isLoadedBtn: false,
         isLoadedMore: false,
         page: 1,
-      }));
+      });
     }
     this.setState(prevState => ({
       images: [...prevState.images, ...images.data.hits],
+      isLoading: false,
       isLoadedMore: false,
       isLoadedBtn: true,
       page: this.state.page,
@@ -100,28 +104,27 @@ export class ImageGallery extends Component {
 
     return (
       <>
+        {isLoading && (
+          <Circles
+            height="100"
+            width="100"
+            color="#004F98"
+            ariaLabel="circles-loading"
+            wrapperStyle={{
+              display: 'flex',
+              top: 0,
+              left: 0,
+              right: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '50vh',
+            }}
+            wrapperClass=""
+            visible={true}
+          />
+        )}
         {images.length > 0 && (
           <StyledGallery>
-            {isLoading && (
-              <Circles
-                height="100"
-                width="100"
-                color="#004F98"
-                ariaLabel="circles-loading"
-                wrapperStyle={{
-                  position: 'absolute',
-                  display: 'flex',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '50vh',
-                }}
-                wrapperClass=""
-                visible={true}
-              />
-            )}
             {images &&
               images.map(({ id, webformatURL, largeImageURL, tags }) => {
                 return (
@@ -144,9 +147,9 @@ export class ImageGallery extends Component {
             color="#004F98"
             ariaLabel="circles-loading"
             wrapperStyle={{
-              position: 'absolute',
+              position: 'fixed',
               display: 'flex',
-              top: 0,
+              bottom: 100,
               left: 0,
               right: 0,
               justifyContent: 'center',
