@@ -24,36 +24,31 @@ export class ImageGallery extends Component {
     page: 1,
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { imageName } = this.props;
+    const { page } = this.state;
+    console.log(page);
+
     if (prevProps.imageName !== imageName && imageName.trim() !== '') {
-      pixabayApi.page = 1;
       this.setState({
         isLoading: true,
         images: [],
         isLoadedBtn: false,
         page: 1,
       });
-      this.handleAPIRequest(imageName);
+
+      pixabayApi.fetchImages(imageName, 1).then(images => {
+        this.handleAPIRequestChecking(images);
+      });
+    }
+
+    if (prevState.page !== page && page !== 1) {
+      this.setState({ isLoadedMore: true });
+      pixabayApi.fetchImages(imageName, page).then(images => {
+        this.handleAPIRequestChecking(images);
+      });
     }
   }
-  handleAPIRequest = (imageName, page) => {
-    try {
-      const { page } = this.state;
-      console.log(page);
-      return pixabayApi
-        .fetchImages(imageName, page)
-        .then(images => {
-          console.log(images);
-          this.handleAPIRequestChecking(images);
-        })
-        .finally(() => {
-          this.setState({ isLoading: false });
-        });
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  };
 
   handleAPIRequestChecking = images => {
     if (images.data.totalHits === 0) {
@@ -67,29 +62,23 @@ export class ImageGallery extends Component {
       images.data.totalHits - pixabayApi.count <= pixabayApi.count
     ) {
       return this.setState(prevState => ({
-        images: [...prevState.images, ...images.data.hits],
+        images: images.data.hits,
         isLoading: false,
         isLoadedBtn: false,
         isLoadedMore: false,
+        page: 1,
       }));
     }
     this.setState(prevState => ({
       images: [...prevState.images, ...images.data.hits],
       isLoadedMore: false,
       isLoadedBtn: true,
+      page: this.state.page,
     }));
   };
 
   handleLoadMoreBtnClick = () => {
-    try {
-      const { imageName } = this.props;
-      const nextPage = this.state.page + 1;
-      this.setState({ isLoadedMore: true, page: nextPage }, () => {
-        this.handleAPIRequest(imageName, nextPage);
-      });
-    } catch (err) {
-      throw new Error(err.message);
-    }
+    this.setState(({ page }) => ({ page: page + 1 }));
   };
 
   toggleModal = image => {
@@ -108,6 +97,7 @@ export class ImageGallery extends Component {
       isLoadedBtn,
       isLoadedMore,
     } = this.state;
+
     return (
       <>
         {images.length > 0 && (
