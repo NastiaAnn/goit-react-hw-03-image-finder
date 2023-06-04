@@ -27,7 +27,6 @@ export class ImageGallery extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { imageName } = this.props;
     const { page } = this.state;
-    console.log(page);
 
     if (prevProps.imageName !== imageName && imageName.trim() !== '') {
       this.setState({
@@ -47,9 +46,13 @@ export class ImageGallery extends Component {
   }
 
   handleAPIRequest = (imageName, page) => {
-    return pixabayApi.fetchImages(imageName, page).then(images => {
-      this.handleAPIRequestChecking(images);
-    });
+    try {
+      return pixabayApi.fetchImages(imageName, page).then(images => {
+        this.handleAPIRequestChecking(images);
+      });
+    } catch (err) {
+      throw new Error(err.message);
+    }
   };
 
   handleAPIRequestChecking = images => {
