@@ -22,7 +22,6 @@ export class ImageGallery extends Component {
     status: 'idle',
     page: 1,
   };
-
   componentDidUpdate(prevProps, prevState) {
     const { imageName } = this.props;
     const { page } = this.state;
