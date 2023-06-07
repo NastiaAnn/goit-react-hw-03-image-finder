@@ -20,7 +20,6 @@ export class ImageGallery extends Component {
     isLoading: false,
     selectedImage: null,
     isLoadedBtn: false,
-    isLoadedMore: false,
     page: 1,
   };
 
@@ -40,7 +39,7 @@ export class ImageGallery extends Component {
     }
 
     if (prevState.page !== page && page !== 1) {
-      this.setState({ isLoadedMore: true });
+      this.setState({ isLoading: true });
       this.handleAPIRequest(imageName, page);
     }
   }
@@ -71,14 +70,12 @@ export class ImageGallery extends Component {
         images: images.data.hits,
         isLoading: false,
         isLoadedBtn: false,
-        isLoadedMore: false,
         page: 1,
       });
     }
     this.setState(prevState => ({
       images: [...prevState.images, ...images.data.hits],
       isLoading: false,
-      isLoadedMore: false,
       isLoadedBtn: true,
       page: this.state.page,
     }));
@@ -96,36 +93,11 @@ export class ImageGallery extends Component {
   };
 
   render() {
-    const {
-      isLoading,
-      images,
-      showModal,
-      selectedImage,
-      isLoadedBtn,
-      isLoadedMore,
-    } = this.state;
+    const { isLoading, images, showModal, selectedImage, isLoadedBtn } =
+      this.state;
 
     return (
       <>
-        {isLoading && (
-          <Circles
-            height="100"
-            width="100"
-            color="#004F98"
-            ariaLabel="circles-loading"
-            wrapperStyle={{
-              display: 'flex',
-              top: 0,
-              left: 0,
-              right: 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '50vh',
-            }}
-            wrapperClass=""
-            visible={true}
-          />
-        )}
         {images.length > 0 && (
           <StyledGallery>
             {images &&
@@ -142,8 +114,7 @@ export class ImageGallery extends Component {
               })}
           </StyledGallery>
         )}
-
-        {isLoadedMore && (
+        {isLoading && (
           <Circles
             height="100"
             width="100"
@@ -152,6 +123,7 @@ export class ImageGallery extends Component {
             wrapperStyle={{
               position: 'fixed',
               display: 'flex',
+              top: 0,
               bottom: 100,
               left: 0,
               right: 0,
