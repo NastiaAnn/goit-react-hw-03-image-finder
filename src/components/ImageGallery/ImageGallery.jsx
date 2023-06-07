@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Image } from 'components/Image';
 import { StyledGallery } from './styled';
+<<<<<<< Updated upstream
 import { Circles } from 'react-loader-spinner';
 import { LoadMoreBtn } from 'components/LoadMoreBtn';
 import { PixabayApi } from 'services/Api';
@@ -91,9 +92,42 @@ export class ImageGallery extends Component {
       showModal: !showModal,
       selectedImage: image,
     }));
+=======
+import axios from 'axios';
+
+const APIKey = '35232464-dd394eb40b88e49b2f7bb554e';
+const baseAPI = 'https://pixabay.com';
+
+export class ImageGallery extends Component {
+  state = {
+    images: [],
+>>>>>>> Stashed changes
   };
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.imageName !== this.props.imageName) {
+      axios
+        .get(`${baseAPI}/api/`, {
+          params: {
+            q: this.props.imageName,
+            page: 1,
+            per_page: 12,
+            key: APIKey,
+            image_type: 'photo',
+            orientation: 'horizontal',
+            safesearch: 'true',
+          },
+        })
+        .then(images => {
+          this.setState({ images: images.data.hits });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  }
 
   render() {
+<<<<<<< Updated upstream
     const { images, showModal, selectedImage, isLoadedBtn, status } =
       this.state;
 
@@ -186,5 +220,22 @@ export class ImageGallery extends Component {
         </div>
       );
     }
+=======
+    return (
+      <StyledGallery>
+        {this.state.images &&
+          this.state.images.map(({ id, webformatURL, largeImageURL, tags }) => {
+            return (
+              <Image
+                key={id}
+                smallImgUrl={webformatURL}
+                bigImgUrl={largeImageURL}
+                imgDescr={tags}
+              />
+            );
+          })}
+      </StyledGallery>
+    );
+>>>>>>> Stashed changes
   }
 }

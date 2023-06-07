@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { FormInput, SearchForm, FormButton, FormWrap } from './styled';
 import { GoSearch } from 'react-icons/go';
+<<<<<<< Updated upstream
 import PropTypes from 'prop-types';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
@@ -8,6 +9,11 @@ export class SearchBar extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
   };
+=======
+// import PropTypes from 'prop-types';
+
+export class SearchBar extends Component {
+>>>>>>> Stashed changes
   state = {
     imageName: '',
   };
@@ -16,6 +22,7 @@ export class SearchBar extends Component {
   };
 
   handleSubmit = event => {
+<<<<<<< Updated upstream
     const { imageName } = this.state;
     event.preventDefault();
 
@@ -28,6 +35,19 @@ export class SearchBar extends Component {
 
   render() {
     const { imageName } = this.state;
+=======
+    event.preventDefault();
+
+    if (this.state.imageName.trim() === '') {
+      alert('Порожня строка');
+    }
+
+    this.props.onSubmit(this.state.imageName);
+    this.setState({ imageName: '' });
+  };
+
+  render() {
+>>>>>>> Stashed changes
     return (
       <FormWrap>
         <header className="searchbar">
@@ -38,7 +58,11 @@ export class SearchBar extends Component {
 
             <FormInput
               placeholder="Search images and photos"
+<<<<<<< Updated upstream
               value={imageName}
+=======
+              value={this.state.imageName}
+>>>>>>> Stashed changes
               onChange={this.handleNameChange}
             />
           </SearchForm>
