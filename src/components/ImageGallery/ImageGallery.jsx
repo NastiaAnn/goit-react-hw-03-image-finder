@@ -17,9 +17,9 @@ export class ImageGallery extends Component {
   state = {
     images: [],
     showModal: false,
-    isLoading: false,
     selectedImage: null,
     isLoadedBtn: false,
+    status: 'idle',
     page: 1,
   };
 
@@ -29,9 +29,9 @@ export class ImageGallery extends Component {
 
     if (prevProps.imageName !== imageName && imageName.trim() !== '') {
       this.setState({
-        isLoading: true,
         images: [],
-        isLoadedBtn: false,
+
+        status: 'pending',
         page: 1,
       });
 
@@ -39,7 +39,7 @@ export class ImageGallery extends Component {
     }
 
     if (prevState.page !== page && page !== 1) {
-      this.setState({ isLoading: true });
+      this.setState({ isLoadedBtn: true });
       this.handleAPIRequest(imageName, page);
     }
   }
@@ -56,7 +56,7 @@ export class ImageGallery extends Component {
 
   handleAPIRequestChecking = images => {
     if (images.data.totalHits === 0) {
-      this.setState({ isLoading: false });
+      this.setState({ status: 'rejected' });
       return Notify.warning(
         'Sorry, there are no images matching your search query. Please try again.'
       );
@@ -68,15 +68,17 @@ export class ImageGallery extends Component {
     ) {
       return this.setState({
         images: images.data.hits,
-        isLoading: false,
+
         isLoadedBtn: false,
+        status: 'resolved',
         page: 1,
       });
     }
     this.setState(prevState => ({
       images: [...prevState.images, ...images.data.hits],
-      isLoading: false,
-      isLoadedBtn: true,
+
+      isLoadedBtn: false,
+      status: 'resolved',
       page: this.state.page,
     }));
   };
@@ -93,12 +95,43 @@ export class ImageGallery extends Component {
   };
 
   render() {
-    const { isLoading, images, showModal, selectedImage, isLoadedBtn } =
+    const { images, showModal, selectedImage, isLoadedBtn, status } =
       this.state;
 
-    return (
-      <>
-        {images.length > 0 && (
+    if (status === 'idle') {
+      return <></>;
+    }
+
+    if (status === 'pending') {
+      return (
+        <Circles
+          height="100"
+          width="100"
+          color="#004F98"
+          ariaLabel="circles-loading"
+          wrapperStyle={{
+            position: 'fixed',
+            display: 'flex',
+            top: 0,
+            bottom: 100,
+            left: 0,
+            right: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '50vh',
+          }}
+          wrapperClass=""
+          visible={true}
+        />
+      );
+    }
+
+    if (status === 'rejected') {
+      return;
+    }
+    if (status === 'resolved') {
+      return (
+        <div>
           <StyledGallery>
             {images &&
               images.map(({ id, webformatURL, largeImageURL, tags }) => {
@@ -113,47 +146,46 @@ export class ImageGallery extends Component {
                 );
               })}
           </StyledGallery>
-        )}
-        {isLoading && (
-          <Circles
-            height="100"
-            width="100"
-            color="#004F98"
-            ariaLabel="circles-loading"
-            wrapperStyle={{
-              position: 'fixed',
-              display: 'flex',
-              top: 0,
-              bottom: 100,
-              left: 0,
-              right: 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '50vh',
-            }}
-            wrapperClass=""
-            visible={true}
-          />
-        )}
 
-        {isLoadedBtn && (
-          <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick} />
-        )}
-
-        {showModal && selectedImage && (
-          <Modal onClose={this.toggleModal}>
-            <img
-              style={{
-                display: 'block',
-                width: '100%',
-                height: 'auto',
+          {isLoadedBtn ? (
+            <Circles
+              height="100"
+              width="100"
+              color="#004F98"
+              ariaLabel="circles-loading"
+              wrapperStyle={{
+                position: 'fixed',
+                display: 'flex',
+                top: 0,
+                bottom: 100,
+                left: 0,
+                right: 0,
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '50vh',
               }}
-              src={selectedImage.largeImageURL}
-              alt={selectedImage.tags}
+              wrapperClass=""
+              visible={true}
             />
-          </Modal>
-        )}
-      </>
-    );
+          ) : (
+            <LoadMoreBtn handleLoadMoreBtnClick={this.handleLoadMoreBtnClick} />
+          )}
+
+          {showModal && selectedImage && (
+            <Modal onClose={this.toggleModal}>
+              <img
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: 'auto',
+                }}
+                src={selectedImage.largeImageURL}
+                alt={selectedImage.tags}
+              />
+            </Modal>
+          )}
+        </div>
+      );
+    }
   }
 }
